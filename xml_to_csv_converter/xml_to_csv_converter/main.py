@@ -68,12 +68,14 @@ if st.session_state.page == "predefined":
 if st.session_state.page == "custom":
     if not reference_file:
         reference_file = st.file_uploader("Upload the reference CSV file", type=["csv","txt"], key="reference_csv")
-        reference_path = os.path.join(UPLOAD_DIR, reference_file.name)
-        with open(reference_path, "wb") as f:
-            f.write(reference_file.getbuffer())
-        # Update session state
-        if reference_path not in st.session_state.schemas:
-            st.session_state.schemas.append(reference_path)
+        if reference_file:
+            reference_path = os.path.join(UPLOAD_DIR, reference_file.name)
+            with open(reference_path, "wb") as f:
+                f.write(reference_file.getbuffer())
+
+            # Update session state
+            if reference_path not in st.session_state.schemas:
+                st.session_state.schemas.append(reference_path)
 
     target_file = st.file_uploader("Upload the target CSV file", type=["csv","txt"], key="target_csv")
 
