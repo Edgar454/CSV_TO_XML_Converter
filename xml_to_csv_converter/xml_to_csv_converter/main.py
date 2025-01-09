@@ -1,6 +1,8 @@
 import streamlit as st
 import tempfile
 import pathlib
+import json
+import os
 import xml.etree.ElementTree as ET
 from utils import convert_csv_to_xml, format_csv
 
@@ -12,12 +14,16 @@ def load_css(file_path):
 css_path = pathlib.Path(__file__).parent / "assets/style.css"
 load_css(css_path)
 
-@st.cache_data
-def get_or_update_schema(new_item=None):
-    schema = set(st.session_state.get("schema", []))  # Convert cached list to set
-    if new_item:
-        schema.add(new_item)
-    return list(schema) 
+UPLOAD_DIR = "uploaded_files"
+
+# Create the directory if it doesn't exist
+if not os.path.exists(UPLOAD_DIR):
+    os.makedirs(UPLOAD_DIR)
+
+# Save schema to file
+def save_schema(schema):
+    with open(PERSISTENCE_FILE, "w") as f:
+        json.dump(schema, f)
 
 st.title("CSV To XML Converter")
 st.header("Convert you csv files into XML ones")
@@ -26,8 +32,9 @@ st.header("Convert you csv files into XML ones")
 if 'page' not in st.session_state:
     st.session_state.page = "home"
 
-if "schema" not in st.session_state:
-    st.session_state.schema = set(get_or_update_schema())
+# Initialize session state
+if 'schemas' not in st.session_state:
+    st.session_state.schemas = []
 
 
 reference_file = None
@@ -58,13 +65,16 @@ if st.session_state.page == "predefined":
         st.rerun()
     
 
-
 if st.session_state.page == "custom":
     if not reference_file:
         reference_file = st.file_uploader("Upload the reference CSV file", type=["csv","txt"], key="reference_csv")
-        st.session_state.schema.add(reference_file)
-        get_or_update_schema(reference_file)
-        
+        reference_path = os.path.join(UPLOAD_DIR, reference_file.name)
+        with open(reference_path, "wb") as f:
+            f.write(reference_file.getbuffer())
+        # Update session state
+        if reference_path not in st.session_state.schemas:
+            st.session_state.schemas.append(reference_path)
+
     target_file = st.file_uploader("Upload the target CSV file", type=["csv","txt"], key="target_csv")
 
     # If files are uploaded
