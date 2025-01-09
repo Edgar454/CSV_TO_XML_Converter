@@ -12,7 +12,12 @@ def load_css(file_path):
 css_path = pathlib.Path(__file__).parent / "assets/style.css"
 load_css(css_path)
 
-
+@st.cache_data
+def get_or_update_schema(new_item=None):
+    schema = set(st.session_state.get("schema", []))  # Convert cached list to set
+    if new_item:
+        schema.add(new_item)
+    return list(schema) 
 
 st.title("CSV To XML Converter")
 st.header("Convert you csv files into XML ones")
@@ -21,8 +26,8 @@ st.header("Convert you csv files into XML ones")
 if 'page' not in st.session_state:
     st.session_state.page = "home"
 
-if 'schema' not in st.session_state:
-    st.session_state.schema = []
+if "schema" not in st.session_state:
+    st.session_state.schema = set(get_or_update_schema())
 
 
 reference_file = None
@@ -57,8 +62,9 @@ if st.session_state.page == "predefined":
 if st.session_state.page == "custom":
     if not reference_file:
         reference_file = st.file_uploader("Upload the reference CSV file", type=["csv","txt"], key="reference_csv")
-        st.session_state.schema.append(reference_file)
-
+        st.session_state.schema.add(reference_file)
+        get_or_update_schema(reference_file)
+        
     target_file = st.file_uploader("Upload the target CSV file", type=["csv","txt"], key="target_csv")
 
     # If files are uploaded
