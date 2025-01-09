@@ -53,8 +53,8 @@ if st.session_state.page == "home":
             st.rerun()
 
 if st.session_state.page == "predefined":
-    if  st.session_state.schema:
-        option = st.selectbox( "What schema would you like to use?", st.session_state.schema, index=None, placeholder="Select schema...")
+    if  st.session_state.schemas:
+        option = st.selectbox( "What schema would you like to use?", st.session_state.schemas, index=None, placeholder="Select schema...")
         if option:
             reference_file = option
             st.session_state.page = "custom"
