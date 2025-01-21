@@ -162,3 +162,34 @@ def convert_csv_to_xml(csv_file: str) -> io.BytesIO:
 
 
 
+def xml_formatter(input_file_path:str , output_file_path:str) -> None:
+  """
+  Function to format an xml file\n
+  Arguments
+  --------
+  input_file_path : path to the xml file to format
+  output_file_path : path to the output file
+  """
+  # Load the XML file
+  tree = ET.parse(input_file_path)
+  root = tree.getroot()
+
+  # Function to format XML elements vertically
+  def format_xml_vertically(element, level=0):
+      indent = "\n" + "    " * level
+      if len(element):
+          element.text = (element.text or "").strip()
+          element.text = indent + "    "
+          for child in element:
+              format_xml_vertically(child, level + 1)
+          element.tail = indent
+      else:
+          element.text = (element.text or "").strip()
+          element.tail = indent
+
+  # Apply formatting
+  for child in root:
+      format_xml_vertically(child)
+
+  # Write the formatted XML to a new file
+  tree.write(output_file_path, encoding='utf-8', xml_declaration=True)
