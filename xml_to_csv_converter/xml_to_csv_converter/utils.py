@@ -121,6 +121,17 @@ def format_csv(csv_path:str , reference_path:str , output_path:str) -> None:
 
   # Deriving the target columns names from our dictionnary
   target_colnames = [col_dict[i] if i in col_dict.keys() else f'unk_{i}' for i in range(target_df.shape[1])]
+  
+  # modifying wrong column names 
+  try:
+    size_dec_index = target_colnames.index('Field975')
+    fasteningtext_index = target_colnames.index('Field983')
+    target_colnames[size_dec_index] = 'Size-Description'
+    target_colnames[fasteningtext_index] = 'INCLUDEFASTENINGTEXT'
+  except Exception as e:
+    print(f"Column names modification failed due to {e}")
+    pass
+
 
   # saving the cleaned reference target
   reference_df.to_csv(reference_path, index = False)
@@ -159,6 +170,7 @@ def convert_csv_to_xml(csv_file: str) -> io.BytesIO:
         xml_data = io.BytesIO()
         tree.write(xml_data, encoding='utf-8', xml_declaration=True)
         return xml_data.getvalue()
+  
 
 
 

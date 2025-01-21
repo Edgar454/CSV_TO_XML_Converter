@@ -5,7 +5,7 @@ import pickle
 import os
 import copy
 import xml.etree.ElementTree as ET
-from utils import convert_csv_to_xml, format_csv, xml_formatter
+from utils import convert_csv_to_xml, format_csv
 
 # load Custom CSS
 def load_css(file_path):
@@ -75,7 +75,7 @@ if st.session_state.page == "predefined":
             st.session_state.reference = option
             st.session_state.page = "custom"
             st.rerun()
-            
+
         reset_button = st.button("Homepage",key='reset')
         if reset_button :
             st.session_state.page = "home"
