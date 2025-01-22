@@ -58,17 +58,6 @@ def format_csv(csv_path:str , reference_path:str , output_path:str) -> None:
 
   try :
     # Matching the 2 csv columns
-    ## 1st condition if they share at least one value then it's likely they are the same column
-    col_dict  = {} # we will use a dictionnary with position in the target as the keys
-
-    for csv_col in reference_df.columns:
-      unique_csv_values = reference_df[csv_col].unique()
-      for j , text_col in enumerate(target_df.columns):
-        unique_text_values = target_df[text_col].unique()
-        if set(unique_csv_values).intersection(unique_text_values):
-          col_dict[j] = csv_col
-          break
-
     # the positions have been checked manually since the was no regex matching the content
     col_dict_rem = {}
     reference_columns = list(reference_df.columns)
@@ -113,6 +102,17 @@ def format_csv(csv_path:str , reference_path:str , output_path:str) -> None:
       13 :'CarePhrase1',
       14: 'CarePhrase2',
       })
+    
+    ## 1st condition if they share at least one value then it's likely they are the same column
+    col_dict  = {} # we will use a dictionnary with position in the target as the keys
+
+    for csv_col in reference_df.columns:
+      unique_csv_values = reference_df[csv_col].unique()
+      for j , text_col in enumerate(target_df.columns):
+        unique_text_values = target_df[text_col].unique()
+        if set(unique_csv_values).intersection(unique_text_values):
+          col_dict[j] = csv_col
+          break
 
     col_dict.update(col_dict_rem)
   except Exception as e:
