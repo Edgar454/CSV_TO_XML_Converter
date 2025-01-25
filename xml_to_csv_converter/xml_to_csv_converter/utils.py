@@ -21,7 +21,7 @@ def format_csv(csv_path:str , reference_path:str , output_path:str) -> None:
   # loading the datasets
   try:
     target_raw_df = pd.read_csv(csv_path)
-    reference_raw_df = pd.read_csv(reference_path)
+    reference_raw_df = pd.read_csv(reference_path,sep=None , engine='python')
     print(f"Number of initial columns in:\n reference: {reference_raw_df.shape[1]}\tfile_to_process:{target_raw_df.shape[1]}")
   except Exception as e:
     print(f"Files loading failed due to {e}")
