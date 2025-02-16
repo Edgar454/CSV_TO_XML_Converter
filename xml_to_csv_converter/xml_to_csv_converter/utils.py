@@ -21,7 +21,7 @@ def format_csv(csv_path:str , reference_path:str , output_path:str) -> None:
   # loading the datasets
   try:
     target_raw_df = pd.read_csv(csv_path)
-    reference_raw_df = pd.read_csv(reference_path,sep=None , engine='python')
+    reference_raw_df = pd.read_csv(reference_path)
     print(f"Number of initial columns in:\n reference: {reference_raw_df.shape[1]}\tfile_to_process:{target_raw_df.shape[1]}")
   except Exception as e:
     print(f"Files loading failed due to {e}")
@@ -83,7 +83,11 @@ def format_csv(csv_path:str , reference_path:str , output_path:str) -> None:
       col_dict_rem[j] = csv_col
 
     interest_columns = list(reference_columns[11:16]).copy()
-    interest_columns.remove('CareCodeID')
+    try:
+      interest_columns.remove('CareCodeID')
+    except:
+       pass
+    
     for j , csv_col in zip(range(25,29) , interest_columns) :
         col_dict_rem[j] = csv_col
 
@@ -126,8 +130,8 @@ def format_csv(csv_path:str , reference_path:str , output_path:str) -> None:
   try:
     size_dec_index = target_colnames.index('Field975')
     fasteningtext_index = target_colnames.index('Field983')
-    target_colnames[size_dec_index] = 'Size-Description'
-    target_colnames[fasteningtext_index] = 'INCLUDEFASTENINGTEXT'
+    target_colnames[-2] = 'Size-Description'
+    target_colnames[-1] = 'INCLUDEFASTENINGTEXT'
   except Exception as e:
     print(f"Column names modification failed due to {e}")
     pass
