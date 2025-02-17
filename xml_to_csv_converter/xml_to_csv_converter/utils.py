@@ -6,6 +6,24 @@ import csv
 import xml.etree.ElementTree as ET
 from xml.sax.saxutils import escape
 
+def load_in_utf8(file_path:str , encoding = "utf16") -> str:
+  """
+  Function to load a file in utf-8\n
+  Arguments
+  --------
+  file_path : path to the file to load
+  """
+  try:
+     output_file = "reference.csv"
+     df = pd.read_csv(file_path, encoding="utf-16le")
+     df.to_csv(output_file, index=False, encoding="utf-8")
+     df = pd.read_csv(output_file)
+     return df
+  except Exception as e:
+    print(f"File loading failed due to {e}")
+    return None
+
+
 def format_csv(csv_path:str , reference_path:str , output_path:str) -> None:
 
   """
@@ -21,7 +39,7 @@ def format_csv(csv_path:str , reference_path:str , output_path:str) -> None:
   # loading the datasets
   try:
     target_raw_df = pd.read_csv(csv_path)
-    reference_raw_df = pd.read_csv(reference_path)
+    reference_raw_df= load_in_utf8(reference_path)
     print(f"Number of initial columns in:\n reference: {reference_raw_df.shape[1]}\tfile_to_process:{target_raw_df.shape[1]}")
   except Exception as e:
     print(f"Files loading failed due to {e}")
