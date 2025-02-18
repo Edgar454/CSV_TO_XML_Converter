@@ -5,20 +5,27 @@ import io
 import csv
 import xml.etree.ElementTree as ET
 from xml.sax.saxutils import escape
+import xml.dom.minidom
+
 
 def load_in_utf8(file_path:str , encoding = "utf16") -> str:
   """
-  Function to load a file in utf-8\n
+  Function to load a file in utf-8
   Arguments
   --------
   file_path : path to the file to load
   """
   try:
-     output_file = "reference.csv"
-     df = pd.read_csv(file_path, encoding="utf-16le")
-     df.to_csv(output_file, index=False, encoding="utf-8")
-     df = pd.read_csv(output_file)
-     return df
+    if encoding == "utf16":
+      output_file = "reference.csv"
+      df = pd.read_csv(file_path, quoting=3, encoding="utf-16le")
+      df.to_csv(output_file, index=False, encoding="utf-8")
+      df = pd.read_csv(output_file)
+      return df
+    elif encoding == "utf8":
+      df = pd.read_csv(file_path)
+      return df
+  
   except Exception as e:
     print(f"File loading failed due to {e}")
     return None
@@ -39,7 +46,7 @@ def format_csv(csv_path:str , reference_path:str , output_path:str) -> None:
   # loading the datasets
   try:
     target_raw_df = pd.read_csv(csv_path)
-    reference_raw_df= load_in_utf8(reference_path)
+    reference_raw_df= load_in_utf8(reference_path , encoding = "utf8")
     print(f"Number of initial columns in:\n reference: {reference_raw_df.shape[1]}\tfile_to_process:{target_raw_df.shape[1]}")
   except Exception as e:
     print(f"Files loading failed due to {e}")
@@ -148,8 +155,8 @@ def format_csv(csv_path:str , reference_path:str , output_path:str) -> None:
   try:
     size_dec_index = target_colnames.index('Field975')
     fasteningtext_index = target_colnames.index('Field983')
-    target_colnames[-2] = 'Size-Description'
-    target_colnames[-1] = 'INCLUDEFASTENINGTEXT'
+    target_colnames[size_dec_index] = 'Size-Description'
+    target_colnames[fasteningtext_index] = 'INCLUDEFASTENINGTEXT'
   except Exception as e:
     print(f"Column names modification failed due to {e}")
     pass
@@ -191,7 +198,7 @@ def convert_csv_to_xml(csv_file: str) -> io.BytesIO:
         # Write the XML file
         xml_data = io.BytesIO()
         tree.write(xml_data, encoding='utf-8', xml_declaration=True)
-        return xml_data.getvalue()
+        return pretty_print_xml(xml_data)
   
 
 
@@ -227,3 +234,15 @@ def xml_formatter(input_file_path:str , output_file_path:str) -> None:
 
   # Write the formatted XML to a new file
   tree.write(output_file_path, encoding='utf-8', xml_declaration=True)
+
+def pretty_print_xml(xml_data: io.BytesIO) -> io.BytesIO:
+    """Pretty print XML data."""
+    # Parse the XML data
+    dom = xml.dom.minidom.parseString(xml_data.getvalue())
+    pretty_xml_as_string = dom.toprettyxml(indent="  ")
+
+    # Write the pretty XML to a new BytesIO object
+    pretty_xml_data = io.BytesIO()
+    pretty_xml_data.write(pretty_xml_as_string.encode('utf-8'))
+    pretty_xml_data.seek(0)  # Reset the stream position to the beginning
+    return pretty_xml_data
